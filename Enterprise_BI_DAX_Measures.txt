@@ -1,0 +1,568 @@
+ENTERPRISE BUSINESS INTELLIGENCE & ANALYTICS PLATFORM
+Power BI DAX Measures
+Dataset: E-Commerce Sales Data
+
+============================================================
+-- 1. BASE / CORE BUSINESS MEASURES --
+============================================================
+
+Total Sales :=
+SUM ( FactSales[Sales] )
+
+Total Profit :=
+SUM ( FactSales[Profit] )
+
+Total Orders :=
+DISTINCTCOUNT ( FactSales[Order ID] )
+
+Total Quantity :=
+SUM ( FactSales[Quantity] )
+
+Total Customers :=
+DISTINCTCOUNT ( FactSales[CustomerKey] )
+
+Average Order Value :=
+DIVIDE ( [Total Sales], [Total Orders] )
+
+Profit Margin % :=
+DIVIDE ( [Total Profit], [Total Sales] )
+
+Average Unit Price :=
+AVERAGE ( FactSales[Unit Price] )
+
+Average Discount :=
+AVERAGE ( FactSales[Discount] )
+
+Total Discount Value :=
+SUMX (
+    FactSales,
+    FactSales[Quantity] * FactSales[Unit Price] * FactSales[Discount]
+)
+
+
+============================================================
+-- 2. ORDER / SALES ANALYTICS MEASURES --
+============================================================
+
+Orders per Customer :=
+DIVIDE ( [Total Orders], [Total Customers] )
+
+Items per Order :=
+DIVIDE ( [Total Quantity], [Total Orders] )
+
+Sales per Customer :=
+DIVIDE ( [Total Sales], [Total Customers] )
+
+Profit per Customer :=
+DIVIDE ( [Total Profit], [Total Customers] )
+
+Profit per Order :=
+DIVIDE ( [Total Profit], [Total Orders] )
+
+Sales per Item :=
+DIVIDE ( [Total Sales], [Total Quantity] )
+
+Quantity per Customer :=
+DIVIDE ( [Total Quantity], [Total Customers] )
+
+
+============================================================
+-- 3. TIME INTELLIGENCE MEASURES --
+============================================================
+
+Sales YTD :=
+TOTALYTD (
+    [Total Sales],
+    DimDate[Date]
+)
+
+Sales MTD :=
+TOTALMTD (
+    [Total Sales],
+    DimDate[Date]
+)
+
+Sales QTD :=
+TOTALQTD (
+    [Total Sales],
+    DimDate[Date]
+)
+
+Sales LY :=
+CALCULATE (
+    [Total Sales],
+    SAMEPERIODLASTYEAR ( DimDate[Date] )
+)
+
+Profit YTD :=
+TOTALYTD (
+    [Total Profit],
+    DimDate[Date]
+)
+
+Profit LY :=
+CALCULATE (
+    [Total Profit],
+    SAMEPERIODLASTYEAR ( DimDate[Date] )
+)
+
+Sales YoY :=
+[Total Sales] - [Sales LY]
+
+Sales YoY % :=
+DIVIDE (
+    [Total Sales] - [Sales LY],
+    [Sales LY]
+)
+
+Profit YoY :=
+[Total Profit] - [Profit LY]
+
+Profit YoY % :=
+DIVIDE (
+    [Total Profit] - [Profit LY],
+    [Profit LY]
+)
+
+Rolling 30D Sales :=
+CALCULATE (
+    [Total Sales],
+    DATESINPERIOD (
+        DimDate[Date],
+        MAX ( DimDate[Date] ),
+        -30,
+        DAY
+    )
+)
+
+Rolling 90D Sales :=
+CALCULATE (
+    [Total Sales],
+    DATESINPERIOD (
+        DimDate[Date],
+        MAX ( DimDate[Date] ),
+        -90,
+        DAY
+    )
+)
+
+Rolling 30D Profit :=
+CALCULATE (
+    [Total Profit],
+    DATESINPERIOD (
+        DimDate[Date],
+        MAX ( DimDate[Date] ),
+        -30,
+        DAY
+    )
+)
+
+
+============================================================
+-- 4. PRODUCT ANALYTICS MEASURES --
+============================================================
+
+Products Sold :=
+DISTINCTCOUNT ( FactSales[ProductKey] )
+
+Sales per Product :=
+DIVIDE ( [Total Sales], [Products Sold] )
+
+Profit per Product :=
+DIVIDE ( [Total Profit], [Products Sold] )
+
+Product Sales Rank :=
+RANKX (
+    ALL ( DimProduct[Product Name] ),
+    [Total Sales],
+    ,
+    DESC,
+    DENSE
+)
+
+Product Profit Rank :=
+RANKX (
+    ALL ( DimProduct[Product Name] ),
+    [Total Profit],
+    ,
+    DESC,
+    DENSE
+)
+
+Product Quantity Rank :=
+RANKX (
+    ALL ( DimProduct[Product Name] ),
+    [Total Quantity],
+    ,
+    DESC,
+    DENSE
+)
+
+
+============================================================
+-- 5. CATEGORY / SUB-CATEGORY ANALYTICS --
+============================================================
+
+Categories :=
+DISTINCTCOUNT ( DimProduct[Category] )
+
+Sub-Categories :=
+DISTINCTCOUNT ( DimProduct[Sub-Category] )
+
+Category Sales Rank :=
+RANKX (
+    ALL ( DimProduct[Category] ),
+    [Total Sales],
+    ,
+    DESC,
+    DENSE
+)
+
+Category Profit Rank :=
+RANKX (
+    ALL ( DimProduct[Category] ),
+    [Total Profit],
+    ,
+    DESC,
+    DENSE
+)
+
+Category Sales Contribution % :=
+DIVIDE (
+    [Total Sales],
+    CALCULATE (
+        [Total Sales],
+        ALL ( DimProduct[Category] )
+    )
+)
+
+Category Profit Contribution % :=
+DIVIDE (
+    [Total Profit],
+    CALCULATE (
+        [Total Profit],
+        ALL ( DimProduct[Category] )
+    )
+)
+
+
+============================================================
+-- 6. CUSTOMER ANALYTICS MEASURES --
+============================================================
+
+Customer Sales Rank :=
+RANKX (
+    ALL ( DimCustomer[Customer Name] ),
+    [Total Sales],
+    ,
+    DESC,
+    DENSE
+)
+
+Customer Profit Rank :=
+RANKX (
+    ALL ( DimCustomer[Customer Name] ),
+    [Total Profit],
+    ,
+    DESC,
+    DENSE
+)
+
+Customer Sales Contribution % :=
+DIVIDE (
+    [Total Sales],
+    CALCULATE (
+        [Total Sales],
+        ALL ( DimCustomer[Customer Name] )
+    )
+)
+
+Top Customer Sales :=
+MAXX (
+    ALL ( DimCustomer[Customer Name] ),
+    [Total Sales]
+)
+
+Average Customer Sales :=
+AVERAGEX (
+    ALL ( DimCustomer[Customer Name] ),
+    [Total Sales]
+)
+
+
+============================================================
+-- 7. GEOGRAPHIC / LOCATION MEASURES --
+============================================================
+
+Regions :=
+DISTINCTCOUNT ( DimLocation[Region] )
+
+Cities :=
+DISTINCTCOUNT ( DimLocation[City] )
+
+Region Sales Rank :=
+RANKX (
+    ALL ( DimLocation[Region] ),
+    [Total Sales],
+    ,
+    DESC,
+    DENSE
+)
+
+Region Profit Rank :=
+RANKX (
+    ALL ( DimLocation[Region] ),
+    [Total Profit],
+    ,
+    DESC,
+    DENSE
+)
+
+Region Sales Contribution % :=
+DIVIDE (
+    [Total Sales],
+    CALCULATE (
+        [Total Sales],
+        ALL ( DimLocation[Region] )
+    )
+)
+
+
+============================================================
+-- 8. PAYMENT ANALYTICS MEASURES --
+============================================================
+
+Payment Modes :=
+DISTINCTCOUNT ( DimPayment[PaymentKey] )
+
+Payment Mode Sales Contribution % :=
+DIVIDE (
+    [Total Sales],
+    CALCULATE (
+        [Total Sales],
+        ALL ( DimPayment[Payment Mode] )
+    )
+)
+
+Payment Mode Order Contribution % :=
+DIVIDE (
+    [Total Orders],
+    CALCULATE (
+        [Total Orders],
+        ALL ( DimPayment[Payment Mode] )
+    )
+)
+
+
+============================================================
+-- 9. PROFITABILITY / DISCOUNT ANALYSIS --
+============================================================
+
+Sales Before Discount :=
+SUMX (
+    FactSales,
+    FactSales[Quantity] * FactSales[Unit Price]
+)
+
+Discount Amount :=
+[Sales Before Discount] - [Total Sales]
+
+Discount % of Gross Sales :=
+DIVIDE (
+    [Discount Amount],
+    [Sales Before Discount]
+)
+
+Profit per Unit :=
+DIVIDE (
+    [Total Profit],
+    [Total Quantity]
+)
+
+Sales vs Profit Gap :=
+[Total Sales] - [Total Profit]
+
+Low Margin Sales :=
+CALCULATE (
+    [Total Sales],
+    FILTER (
+        FactSales,
+        DIVIDE ( FactSales[Profit], FactSales[Sales] ) < 0.10
+    )
+)
+
+
+============================================================
+-- 10. TOP / BOTTOM PERFORMANCE MEASURES --
+============================================================
+
+Top 10 Product Sales :=
+CALCULATE (
+    [Total Sales],
+    TOPN (
+        10,
+        ALL ( DimProduct[Product Name] ),
+        [Total Sales],
+        DESC
+    )
+)
+
+Top 10 Product Profit :=
+CALCULATE (
+    [Total Profit],
+    TOPN (
+        10,
+        ALL ( DimProduct[Product Name] ),
+        [Total Profit],
+        DESC
+    )
+)
+
+Bottom 10 Product Sales :=
+CALCULATE (
+    [Total Sales],
+    TOPN (
+        10,
+        ALL ( DimProduct[Product Name] ),
+        [Total Sales],
+        ASC
+    )
+)
+
+Bottom 10 Product Profit :=
+CALCULATE (
+    [Total Profit],
+    TOPN (
+        10,
+        ALL ( DimProduct[Product Name] ),
+        [Total Profit],
+        ASC
+    )
+)
+
+
+============================================================
+-- 11. EXECUTIVE KPI / INSIGHT MEASURES --
+============================================================
+
+Best Product by Sales :=
+VAR TopProduct =
+    TOPN (
+        1,
+        ALL ( DimProduct[Product Name] ),
+        [Total Sales],
+        DESC
+    )
+RETURN
+    CONCATENATEX (
+        TopProduct,
+        DimProduct[Product Name],
+        ", "
+    )
+
+Best Product by Profit :=
+VAR TopProduct =
+    TOPN (
+        1,
+        ALL ( DimProduct[Product Name] ),
+        [Total Profit],
+        DESC
+    )
+RETURN
+    CONCATENATEX (
+        TopProduct,
+        DimProduct[Product Name],
+        ", "
+    )
+
+Best Region by Sales :=
+VAR TopRegion =
+    TOPN (
+        1,
+        ALL ( DimLocation[Region] ),
+        [Total Sales],
+        DESC
+    )
+RETURN
+    CONCATENATEX (
+        TopRegion,
+        DimLocation[Region],
+        ", "
+    )
+
+Best Region by Profit :=
+VAR TopRegion =
+    TOPN (
+        1,
+        ALL ( DimLocation[Region] ),
+        [Total Profit],
+        DESC
+    )
+RETURN
+    CONCATENATEX (
+        TopRegion,
+        DimLocation[Region],
+        ", "
+    )
+
+
+============================================================
+-- 12. DATA QUALITY / MODEL VALIDATION MEASURES --
+============================================================
+
+Fact Rows :=
+COUNTROWS ( FactSales )
+
+Distinct Orders Check :=
+DISTINCTCOUNT ( FactSales[Order ID] )
+
+Distinct Customers Check :=
+DISTINCTCOUNT ( FactSales[CustomerKey] )
+
+Distinct Products Check :=
+DISTINCTCOUNT ( FactSales[ProductKey] )
+
+Distinct Locations Check :=
+DISTINCTCOUNT ( FactSales[LocationKey] )
+
+Distinct Payments Check :=
+DISTINCTCOUNT ( FactSales[PaymentKey] )
+
+
+============================================================
+-- RECOMMENDED FIRST SET TO ACTUALLY CREATE
+============================================================
+
+Start with these measures first. The others can be added as needed:
+
+1. Total Sales
+2. Total Profit
+3. Total Orders
+4. Total Quantity
+5. Total Customers
+6. Average Order Value
+7. Profit Margin %
+8. Average Discount
+9. Sales YTD
+10. Sales LY
+11. Sales YoY %
+12. Profit YTD
+13. Profit LY
+14. Profit YoY %
+15. Products Sold
+16. Orders per Customer
+17. Items per Order
+18. Sales per Customer
+19. Sales per Product
+20. Product Sales Rank
+21. Customer Sales Rank
+22. Region Sales Rank
+23. Category Sales Contribution %
+24. Discount Amount
+25. Discount % of Gross Sales
+
+NOTE:
+- All measures above are designed for the current Power BI star schema:
+  FactSales + DimDate + DimCustomer + DimProduct + DimLocation + DimPayment.
+- The exact measure set can be reduced after the dashboard requirements are finalized.
+- Format currency/number/percentage measures appropriately in Power BI.
