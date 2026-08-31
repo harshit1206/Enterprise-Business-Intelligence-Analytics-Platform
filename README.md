@@ -1,78 +1,123 @@
 # Enterprise Business Intelligence & Analytics Platform
 
+An enterprise-style Power BI analytics solution for ecommerce sales performance, covering revenue, profit, discounts, customer behavior, product performance, regional contribution, and time-based trends.
+
 ## Project Overview
 
-This project is an enterprise-style Power BI analytics solution for ecommerce sales performance. It combines transaction-level sales data, reusable DAX measures, and a Power BI report to support analysis of revenue, profitability, customers, products, categories, regions, and sales trends over time.
+This project brings together:
 
-The solution is intended to help business users answer questions such as:
+- transaction-level sales data from an ecommerce dataset
+- reusable DAX measures for KPI and performance analysis
+- a Power BI report designed for executive and operational decision-making
+- dashboard visuals for product, customer, geography, and trend analysis
 
-- How are sales, profit, orders, and quantity performing?
-- Which products, categories, and regions contribute the most revenue and profit?
-- How are current results tracking against prior periods?
-- What are the average order value, profit margin, discount, and customer-level economics?
-- Which products or categories should receive additional attention?
+The report is designed to help answer questions such as:
 
-## Project Contents
+- How much revenue and profit are being generated over time?
+- Which products, categories, and regions are contributing the most?
+- How are sales and profitability tracking against prior periods?
+- What is the impact of discounts and margin performance?
+- Which customer segments and sales patterns deserve attention?
+
+## Repository Contents
 
 | File | Description |
 | --- | --- |
-| `Ecommerce_Sales_Data_2024_2025.csv` | Transaction-level ecommerce sales data. |
-| `Enterprise_BI_DAX_Measures.txt` | DAX measure definitions for the Power BI data model. |
-| `report.pbix` | Power BI report containing the analytics experience. |
+| `Ecommerce_Sales_Data_2024_2025.csv` | Ecommerce sales dataset with transaction-level records |
+| `Enterprise_BI_DAX_Measures.txt` | DAX definitions used in the report model |
+| `report.pbix` | Power BI dashboard/report file |
+| `img/` | Dashboard screenshots and visual assets |
 
-## Dataset
+## Data Snapshot
 
-The CSV contains one row per sales transaction and includes fields for:
+The dataset contains one row per sales transaction and includes fields such as:
 
-- Order and date information: `Order ID`, `Order Date`
+- Order details: `Order ID`, `Order Date`
 - Customer and geography: `Customer Name`, `Region`, `City`
 - Product hierarchy: `Category`, `Sub-Category`, `Product Name`
 - Commercial metrics: `Quantity`, `Unit Price`, `Discount`, `Sales`, `Profit`
-- Payment information: `Payment Mode`
+- Payment method: `Payment Mode`
 
-The source filename references 2024-2025, while the sample data includes dates from multiple years. Date filtering and comparisons should therefore be driven by the actual `Order Date` values in the loaded data.
+The sample data spans multiple years but is stored under the `2024_2025` filename. For accurate time analysis, use the actual `Order Date` values in the dataset rather than relying only on the file name.
 
-## Analytics Coverage
+## Report Modules and Dashboard Views
 
-The included DAX measures cover:
+The report includes several business-focused views:
 
-- **Core KPIs:** total sales, total profit, orders, quantity, customers, average order value, profit margin, average price, and discounts.
-- **Order and customer analytics:** orders per customer, items per order, sales per customer, profit per customer, and profit per order.
-- **Time intelligence:** YTD, MTD, QTD, prior-year values, year-over-year changes, and rolling 30-day and 90-day performance.
-- **Product analytics:** products sold, sales and profit per product, and product rankings.
-- **Category analytics:** category and sub-category counts, rankings, and contribution percentages.
+- Executive KPI dashboard
+- Sales and trend analysis
+- Product performance analysis
+- Geographic sales and profit analysis
+- Customer-level performance analysis
+- Discount and profitability review
 
-## Expected Data Model
+### Dashboard Illustrations
 
-The DAX definitions reference a star-schema style model with tables such as:
+![Discount analysis](img/discount.png)
 
-- `FactSales`: transaction-level sales records.
-- `DimDate`: a dedicated calendar table used for time intelligence.
-- `DimProduct`: product, category, and sub-category attributes.
+![Geographic analysis](img/geo.png)
 
-For best results, relate the fact table to the date and product dimensions, mark `DimDate` as the model's date table, and use dimension fields for report slicers and grouping.
+![Product performance](img/product.png)
+
+![Sales trends](img/Trends.png)
+
+![Customer analysis](img/users.png)
+
+## DAX Measures Included
+
+The DAX logic currently covers core enterprise metrics such as:
+
+- Total Sales
+- Total Profit
+- Total Orders
+- Total Quantity
+- Total Customers
+- Average Order Value
+- Profit Margin %
+- Discount Amount and Discount %
+- Sales YTD and Profit YTD
+- Sales LY and Profit LY
+- Sales YoY % and Profit YoY %
+- Sales per Customer, Profit per Customer, Orders per Customer
+- Sales per Product and Product Sales Rank
+- Customer Sales Rank
+- Region Sales Rank and Region Profit Rank
+
+These measures align with a star-schema style model using fact and dimension tables such as:
+
+- `FactSales`
+- `DimDate`
+- `DimProduct`
+- `DimCustomer`
+- `DimLocation`
+
+## Business Use Case
+
+This analytics platform supports strategic and operational decision-making for ecommerce performance, with a focus on:
+
+- identifying top-performing categories and products
+- tracking growth and profitability across periods
+- evaluating regional and customer contributions
+- measuring discount efficiency and margin health
+- understanding the drivers behind sales and profit trends
 
 ## Getting Started
 
 1. Open `report.pbix` in Power BI Desktop.
-2. Confirm that the CSV source path is valid for the current machine.
-3. Refresh the data model.
-4. Verify that the table and column names match the references in `Enterprise_BI_DAX_Measures.txt`.
-5. If the measures are not already present, create them in the appropriate model table by copying the DAX definitions from the text file.
-6. Check date relationships and validate the time-intelligence measures with a date slicer.
-
-## Recommended Report Views
-
-A useful report structure can include:
-
-- **Executive Summary:** sales, profit, orders, customers, profit margin, and year-over-year KPIs.
-- **Sales Trends:** daily or monthly sales and profit with YTD and prior-year comparisons.
-- **Product Performance:** top and bottom products by sales, profit, quantity, and rank.
-- **Category and Geography:** category contribution, regional performance, and city-level detail.
-- **Customer and Order Analysis:** customer economics, average order value, and order composition.
+2. Confirm the CSV file path points to `Ecommerce_Sales_Data_2024_2025.csv`.
+3. Refresh the model to load the full dataset.
+4. Verify table and column names match the definitions in `Enterprise_BI_DAX_Measures.txt`.
+5. Ensure the date table is marked correctly and relationships are active for time intelligence.
+6. Use slicers and report pages to analyze performance by date, region, category, product, and customer.
 
 ## Notes
 
-- The DAX measures use `DIVIDE` for ratio calculations, which protects the report from divide-by-zero errors.
-- Time-intelligence measures require a complete, properly related date table.
-- Refresh the report after changing the CSV or updating the DAX definitions.
+- The DAX measures use `DIVIDE` to prevent divide-by-zero errors in ratio-based calculations.
+- Time intelligence measures depend on an accurate `DimDate` table and valid date relationships.
+- Refresh the report after data updates or when changing source files.
+- The visuals in the `img/` folder reflect the current dashboard layout and can be used for presentation or documentation purposes.
+
+## Summary
+
+This project provides a complete ecommerce sales intelligence solution that combines transactional data engineering, DAX-based analytics, and an executive-ready Power BI dashboard. It is suitable for performance review, trend evaluation, and business insight generation across sales, product, customer, and geographic dimensions.
+
