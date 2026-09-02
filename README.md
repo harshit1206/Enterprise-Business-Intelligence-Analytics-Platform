@@ -1,143 +1,483 @@
 # Enterprise Business Intelligence & Analytics Platform
 
-A Power BI-based ecommerce analytics solution designed for performance analysis across sales, profitability, customer value, product trends, and geographic contribution.
+A complete **Power BI Business Intelligence and Analytics Platform** built on an e-commerce sales dataset. The project transforms raw transactional data into a structured analytical data model and an interactive multi-page dashboard for monitoring sales, profitability, customers, products, geography, payments, discounts, and business trends.
 
-## Overview
+## Project Overview
 
-This project combines:
+**Raw E-commerce Data → Power Query Transformation → Dimensional Data Model → DAX Measures → Interactive Power BI Dashboards**
 
-- transactional ecommerce sales data
-- reusable DAX KPI measures
-- a business-ready Power BI dashboard
-- visual analysis for product, customer, region, and trend review
+The platform provides a centralized view of business performance and supports data-driven decision-making.
 
-The solution is intended for executive reporting and operational decision-making, helping teams understand how revenue, profit, discounts, and customer behavior evolve over time.
+## Business Objectives
 
-## Business Questions Answered
+The platform helps answer:
 
-- How much revenue and profit are generated over time?
-- Which categories, products, and regions contribute the most?
-- How do sales and profitability compare with prior periods?
-- Which customers and segments create the highest value?
-- How effective are discounts in driving sales versus margin?
+- How much revenue and profit is being generated?
+- What is the overall profit margin?
+- How are sales and profit changing over time?
+- Which categories, sub-categories, and products perform best?
+- Which customers contribute the most revenue?
+- Which regions and cities perform best?
+- Which payment methods are most commonly used?
+- How do discounts affect sales and profitability?
+- How does performance compare across years?
 
-## Repository Contents
+## Technologies Used
 
-| File / Folder | Description |
-| --- | --- |
-| `Ecommerce_Sales_Data_2024_2025.csv` | Source transaction dataset for ecommerce sales analysis |
-| `Enterprise_BI_DAX_Measures.txt` | DAX definitions for core KPIs and analytical measures |
-| `report.pbix` | Power BI report file with dashboard pages and visuals |
-| `img/` | Images used for documentation and presentation |
-| `README.md` | Project documentation and usage guide |
+| Technology | Purpose |
+|---|---|
+| **Power BI** | Dashboard development, data modeling, visualization |
+| **Power Query** | Data cleaning, transformation, merging and preparation |
+| **DAX** | KPIs, calculations, rankings and time intelligence |
+| **CSV** | Source transactional dataset |
 
-## Dataset Summary
+## Dataset
 
-The dataset contains one row per transaction and includes the following fields:
+### Source File
 
-- Order details: `Order ID`, `Order Date`
-- Customer & geography: `Customer Name`, `Region`, `City`
-- Product hierarchy: `Category`, `Sub-Category`, `Product Name`
-- Commercial metrics: `Quantity`, `Unit Price`, `Discount`, `Sales`, `Profit`
-- Payment information: `Payment Mode`
+`Ecommerce_Sales_Data_2024_2025.csv`
 
-The file name includes `2024_2025`, but the actual transaction dates should be used for time-based analysis. The dataset includes multiple years and is intended for year-over-year and period comparison reporting.
+The source data contains:
 
-## Core Dashboard Views
+- Order ID
+- Order Date
+- Customer Name
+- Region
+- City
+- Category
+- Sub Category
+- Product Name
+- Quantity
+- Unit Price
+- Discount
+- Sales
+- Profit
+- Payment Mode
 
-The Power BI report includes the following business-focused pages:
+## Data Model
 
-- Executive KPI summary
-- Sales trend and performance analysis
-- Product performance insights
-- Geographic sales and profit breakdown
-- Customer analysis and ranking
-- Discount and profitability review
+The project uses a **star-schema-oriented dimensional model**.
 
-### Dashboard Visuals
+### Fact Table
 
-![Discount analysis](img/discount.png)
+**FactSales**
 
-![Geographic analysis](img/geo.png)
+Contains transaction-level sales information and foreign keys connecting the fact table to the dimensions.
 
-![Product performance](img/product.png)
+Key fields include:
 
-![Sales trends](img/Trends.png)
+- Order ID
+- Order Date
+- Quantity
+- Unit Price
+- Discount
+- Sales
+- Profit
+- Customer Key
+- Product Key
+- Location Key
+- Payment Key
+- Date Key
 
-![Customer analysis](img/users.png)
+### Dimension Tables
 
-## DAX Measures Included
+#### `DimCustomer`
+Customer attributes and unique customer keys.
 
-The analytical model includes measures for the following areas:
+#### `DimProduct`
+Product information including:
 
-### Core KPI Measures
+- Product Key
+- Product Name
+- Category
+- Sub-Category
+- Product attributes
+
+#### `DimLocation`
+Geographic information including:
+
+- Location Key
+- Region
+- City
+
+#### `DimPayment`
+Payment-related information and payment keys.
+
+#### `DimDate`
+Date dimension used for time-based analysis and DAX time intelligence.
+
+## Power Query Transformation
+
+Power Query was used to:
+
+1. Import the raw CSV dataset.
+2. Clean and standardize columns.
+3. Create dimension tables.
+4. Remove duplicate dimension records.
+5. Create unique dimension keys.
+6. Build the `FactSales` fact table.
+7. Merge dimension keys into the fact table.
+8. Create the Date dimension and Date Key.
+9. Validate the dimensional structure.
+10. Load the final model into Power BI.
+
+Special attention was given to maintaining unique dimension keys so merges did not create duplicate fact rows.
+
+## DAX Measures
+
+The project uses a focused set of reusable DAX measures.
+
+### Core KPIs
+
+```DAX
+Total Sales =
+SUM ( FactSales[Sales] )
+
+Total Profit =
+SUM ( FactSales[Profit] )
+
+Total Orders =
+DISTINCTCOUNT ( FactSales[Order ID] )
+
+Total Quantity =
+SUM ( FactSales[Quantity] )
+
+Total Customers =
+DISTINCTCOUNT ( FactSales[DimCustomer.CustomerKey] )
+
+Average Order Value =
+DIVIDE ( [Total Sales], [Total Orders] )
+
+Profit Margin % =
+DIVIDE ( [Total Profit], [Total Sales] )
+
+Orders per Customer =
+DIVIDE ( [Total Orders], [Total Customers] )
+
+Items per Order =
+DIVIDE ( [Total Quantity], [Total Orders] )
+
+Sales per Customer =
+DIVIDE ( [Total Sales], [Total Customers] )
+
+Profit per Customer =
+DIVIDE ( [Total Profit], [Total Customers] )
+
+Sales per Item =
+DIVIDE ( [Total Sales], [Total Quantity] )
+
+Profit per Order =
+DIVIDE ( [Total Profit], [Total Orders] )
+```
+
+### Time Intelligence
+
+```DAX
+Sales YTD =
+TOTALYTD ( [Total Sales], DimDate[Date] )
+
+Sales LY =
+CALCULATE ( [Total Sales], SAMEPERIODLASTYEAR ( DimDate[Date] ) )
+
+Sales YoY % =
+DIVIDE ( [Total Sales] - [Sales LY], [Sales LY] )
+
+Profit YTD =
+TOTALYTD ( [Total Profit], DimDate[Date] )
+
+Profit LY =
+CALCULATE ( [Total Profit], SAMEPERIODLASTYEAR ( DimDate[Date] ) )
+
+Profit YoY % =
+DIVIDE ( [Total Profit] - [Profit LY], [Profit LY] )
+```
+
+### Discount Analysis
+
+```DAX
+Gross Sales =
+SUMX (
+    FactSales,
+    FactSales[Quantity] * FactSales[Unit Price]
+)
+
+Discount Amount =
+[Gross Sales] - [Total Sales]
+
+Discount % =
+DIVIDE ( [Discount Amount], [Gross Sales] )
+```
+
+### Product Analysis
+
+```DAX
+Products Sold =
+DISTINCTCOUNT ( FactSales[DimProduct.Product Key] )
+
+Sales per Product =
+DIVIDE ( [Total Sales], [Products Sold] )
+
+Product Sales Rank =
+RANKX (
+    ALL ( DimProduct[Product Name] ),
+    [Total Sales],
+    ,
+    DESC,
+    DENSE
+)
+```
+
+### Customer and Geography Rankings
+
+```DAX
+Customer Sales Rank =
+RANKX (
+    ALL ( DimCustomer[Customer Name] ),
+    [Total Sales],
+    ,
+    DESC,
+    DENSE
+)
+
+Region Sales Rank =
+RANKX (
+    ALL ( DimLocation[Region] ),
+    [Total Sales],
+    ,
+    DESC,
+    DENSE
+)
+
+Region Profit Rank =
+RANKX (
+    ALL ( DimLocation[Region] ),
+    [Total Profit],
+    ,
+    DESC,
+    DENSE
+)
+```
+
+## Power BI Report Structure
+
+The final report contains six main pages:
+
+1. **Home**
+2. **Executive Overview**
+3. **Sales Analytics**
+4. **Product & Category**
+5. **Customer & Geography**
+6. **Profitability & Discount**
+
+The report uses a consistent dark-themed design with navigation between analytical pages.
+
+## 1. Home
+
+The Home page acts as the landing page and provides navigation cards for:
+
+- Executive Overview
+- Sales Analytics
+- Product & Category
+- Customer & Geography
+- Profitability & Discount
+
+## 2. Executive Overview
+
+Provides a high-level view of overall business performance.
+
+### KPI Cards
+
 - Total Sales
-- Total Profit
 - Total Orders
-- Total Quantity
-- Total Customers
-- Average Order Value
+- Total Profit
 - Profit Margin %
+- Average Order Value
+- Total Customers
 
-### Growth and Time Intelligence
-- Sales YTD
-- Profit YTD
-- Sales LY
-- Profit LY
-- Sales YoY %
-- Profit YoY %
+### Visuals
 
-### Customer and Product Measures
-- Sales per Customer
-- Profit per Customer
-- Orders per Customer
-- Sales per Product
-- Product Sales Rank
-- Customer Sales Rank
+- **Monthly Sales Trend** — Line Chart
+- **Sales by Category** — Bar Chart
+- **Sales by Region** — Donut Chart
+- **Sales vs Profit Trend** — Line Chart
+- **Top 5 Products by Sales** — Funnel Chart
+- **Discount vs Sales by Category** — Scatter Chart
+- **Sales per Customer vs Target** — Gauge
 
-### Geographic and Pricing Measures
-- Region Sales Rank
-- Region Profit Rank
-- Discount Amount
-- Discount %
-- Gross Sales
+## 3. Sales Analytics
 
-These measures are structured to support a star-schema style reporting model based on tables such as:
+Focuses on transaction and sales behavior.
 
-- `FactSales`
-- `DimDate`
-- `DimProduct`
-- `DimCustomer`
-- `DimLocation`
+### Visuals
 
-## Project Use Case
+- **Sales by Sub-Category** — Bar Chart
+- **Sales by Payment Method** — Donut Chart
+- **Sales by Quantity Range** — Funnel Chart
+- **Annual Sales Comparison** — Column Chart
+- **Discount vs Sales by Category** — Scatter Chart
+- **Payment Method Performance** — Matrix
 
-This platform supports business decisions in several areas:
+## 4. Product & Category
 
-- identifying high-value products and categories
-- tracking growth across periods
-- evaluating regional performance and contribution
-- assessing customer profitability and segmentation
-- measuring discount efficiency and margin health
-- supporting executive performance reviews and business planning
+Focuses on product-level and category-level performance.
 
-## Getting Started
+### Visuals
 
-1. Open `report.pbix` in Power BI Desktop.
-2. Confirm the dataset path points to `Ecommerce_Sales_Data_2024_2025.csv`.
-3. Refresh the model so the latest sales data is loaded.
-4. Verify all columns and table names match the definitions in `Enterprise_BI_DAX_Measures.txt`.
-5. Review relationships and ensure the date table is correctly marked for time intelligence.
-6. Use slicers and visuals to analyze performance by date, region, category, product, and customer.
+- **Category Sales Contribution (%)** — Pie Chart
+- **Sales Trend by Category (YoY)** — Line Chart
+- **Top 10 Products by Profit** — Bar Chart
+- **Products by Category** — Treemap
+- **Category Profitability Heatmap** — Matrix
 
-## Notes
+## 5. Customer & Geography
 
-- The DAX formulas use `DIVIDE` to avoid divide-by-zero issues in ratios.
-- Time-based measures depend on a valid `DimDate` table and working date relationships.
-- Refresh the report after changing the source file or updating data.
-- Images in the `img/` folder provide a visual summary of the dashboard setup and can be used for presentations or documentation.
+Analyzes customer and geographic performance.
 
-## Summary
+### Visuals
 
-This project delivers a complete ecommerce sales intelligence solution that combines transactional data, DAX-based KPI logic, and an executive-ready Power BI dashboard. It is suitable for business reporting, trend analysis, product review, customer insights, and regional performance evaluation.
+- **Top 10 Customers by Sales**
+- **Sales by City** — Map
+- **Customer & Sales Distribution** — Scatter Chart
+- **Sales Contribution by Region** — Waterfall Chart
+- **Regional Sales Ranking by Month** — Ribbon Chart
 
+## 6. Profitability & Discount
+
+Focuses specifically on profitability and discount behavior.
+
+### KPI Cards
+
+- Total Sales
+- Total Orders
+- Total Profit
+- Profit Margin %
+- Average Order Value
+- Total Customers
+
+### Visuals
+
+- **Monthly Profit Trend** — Area Chart
+- **Profit by Sub-Category** — Column Chart
+- **Discount Contribution by Category** — Pie Chart
+- **Profit by Discount Band** — Funnel Chart
+- **Profit Margin vs Target** — Gauge
+
+## Dashboard Design
+
+The report follows a consistent professional style:
+
+- Dark background
+- High-contrast typography
+- Rounded visual containers
+- Consistent spacing
+- Clear page titles
+- KPI cards at the top of analytical pages
+- Interactive Power BI visuals
+- Home-page navigation
+- Minimal unnecessary visual repetition
+
+The design prioritizes **clarity, usability and business interpretation**.
+
+## Key Business Analysis Enabled
+
+### Sales Performance
+Monitor total revenue, annual performance and monthly sales trends.
+
+### Profitability
+Monitor total profit, profit margin, profit per order and profit contribution across categories and sub-categories.
+
+### Product Performance
+Identify top-selling and most profitable products and compare category performance.
+
+### Customer Performance
+Find high-value customers and analyze customer contribution to revenue.
+
+### Geographic Performance
+Compare regions and cities to identify strong and weak markets.
+
+### Payment Behavior
+Understand customer payment preferences and compare payment-method performance.
+
+### Discount Effectiveness
+Analyze discount contribution and examine relationships between discounts, sales and profitability.
+
+## Project Highlights
+
+- Built a structured dimensional data model.
+- Used Power Query for data transformation and preparation.
+- Created reusable DAX measures for business KPIs.
+- Implemented time-intelligence calculations.
+- Added product, customer and regional ranking logic.
+- Built a six-page interactive Power BI report.
+- Designed separate analytical pages to reduce visual repetition.
+- Added interactive navigation through the Home page.
+- Used KPI cards, charts, maps, matrices and advanced Power BI visuals.
+- Created a management-focused Executive Overview.
+- Added dedicated profitability and discount analysis.
+
+## Suggested Repository Structure
+
+```text
+Enterprise-Business-Intelligence-Analytics-Platform/
+│
+├── README.md
+│
+├── Data/
+│   └── Ecommerce_Sales_Data_2024_2025.csv
+│
+├── PowerBI/
+│   └── Enterprise_BI_Analytics_Platform.pbix
+│
+├── DAX/
+│   └── Final_Enterprise_BI_DAX_Measures.txt
+│
+└── Screenshots/
+    ├── Home.png
+    ├── Executive_Overview.png
+    ├── Sales_Analytics.png
+    ├── Product_Category.png
+    ├── Customer_Geography.png
+    └── Profitability_Discount.png
+```
+
+## How to Use
+
+1. Open the Power BI `.pbix` file.
+2. Refresh the dataset if required.
+3. Start from the **Home** page.
+4. Use the navigation cards to move between report sections.
+5. Use Power BI filters and visual interactions to explore the data.
+6. Review KPI cards for high-level performance.
+7. Drill into product, customer, geographic and profitability pages for deeper analysis.
+
+## Project Purpose
+
+This project demonstrates an end-to-end **Business Intelligence and Analytics solution** using Power BI.
+
+It combines:
+
+**Data Cleaning + Data Modeling + DAX + Visualization + Business Analytics**
+
+The project demonstrates practical skills in:
+
+- Business Intelligence
+- Data Analytics
+- Power BI
+- Power Query
+- DAX
+- Data Modeling
+- Dashboard Design
+- Business Reporting
+
+## Author
+
+**Harshit Dutta**
+
+Enterprise Business Intelligence & Analytics Platform  
+Built using **Power BI, Power Query and DAX**.
+
+## Project Status
+
+**Completed ✅**
+
+The complete BI workflow — from raw e-commerce data to the final interactive Power BI analytics platform — has been implemented.
