@@ -125,138 +125,9 @@ Special attention was given to maintaining unique dimension keys so merges did n
 
 ## DAX Measures
 
-The project uses a focused set of reusable DAX measures.
-
-### Core KPIs
-
-```DAX
-Total Sales =
-SUM ( FactSales[Sales] )
-
-Total Profit =
-SUM ( FactSales[Profit] )
-
-Total Orders =
-DISTINCTCOUNT ( FactSales[Order ID] )
-
-Total Quantity =
-SUM ( FactSales[Quantity] )
-
-Total Customers =
-DISTINCTCOUNT ( FactSales[DimCustomer.CustomerKey] )
-
-Average Order Value =
-DIVIDE ( [Total Sales], [Total Orders] )
-
-Profit Margin % =
-DIVIDE ( [Total Profit], [Total Sales] )
-
-Orders per Customer =
-DIVIDE ( [Total Orders], [Total Customers] )
-
-Items per Order =
-DIVIDE ( [Total Quantity], [Total Orders] )
-
-Sales per Customer =
-DIVIDE ( [Total Sales], [Total Customers] )
-
-Profit per Customer =
-DIVIDE ( [Total Profit], [Total Customers] )
-
-Sales per Item =
-DIVIDE ( [Total Sales], [Total Quantity] )
-
-Profit per Order =
-DIVIDE ( [Total Profit], [Total Orders] )
-```
-
-### Time Intelligence
-
-```DAX
-Sales YTD =
-TOTALYTD ( [Total Sales], DimDate[Date] )
-
-Sales LY =
-CALCULATE ( [Total Sales], SAMEPERIODLASTYEAR ( DimDate[Date] ) )
-
-Sales YoY % =
-DIVIDE ( [Total Sales] - [Sales LY], [Sales LY] )
-
-Profit YTD =
-TOTALYTD ( [Total Profit], DimDate[Date] )
-
-Profit LY =
-CALCULATE ( [Total Profit], SAMEPERIODLASTYEAR ( DimDate[Date] ) )
-
-Profit YoY % =
-DIVIDE ( [Total Profit] - [Profit LY], [Profit LY] )
-```
-
-### Discount Analysis
-
-```DAX
-Gross Sales =
-SUMX (
-    FactSales,
-    FactSales[Quantity] * FactSales[Unit Price]
-)
-
-Discount Amount =
-[Gross Sales] - [Total Sales]
-
-Discount % =
-DIVIDE ( [Discount Amount], [Gross Sales] )
-```
-
-### Product Analysis
-
-```DAX
-Products Sold =
-DISTINCTCOUNT ( FactSales[DimProduct.Product Key] )
-
-Sales per Product =
-DIVIDE ( [Total Sales], [Products Sold] )
-
-Product Sales Rank =
-RANKX (
-    ALL ( DimProduct[Product Name] ),
-    [Total Sales],
-    ,
-    DESC,
-    DENSE
-)
-```
-
-### Customer and Geography Rankings
-
-```DAX
-Customer Sales Rank =
-RANKX (
-    ALL ( DimCustomer[Customer Name] ),
-    [Total Sales],
-    ,
-    DESC,
-    DENSE
-)
-
-Region Sales Rank =
-RANKX (
-    ALL ( DimLocation[Region] ),
-    [Total Sales],
-    ,
-    DESC,
-    DENSE
-)
-
-Region Profit Rank =
-RANKX (
-    ALL ( DimLocation[Region] ),
-    [Total Profit],
-    ,
-    DESC,
-    DENSE
-)
-```
+The DAX measures for core KPIs, sales and order analytics, time intelligence,
+profitability, products, customers, and geography are documented in
+`Enterprise_BI_DAX_Measures.txt`.
 
 ## Power BI Report Structure
 
@@ -345,15 +216,6 @@ Analyzes customer and geographic performance.
 
 Focuses specifically on profitability and discount behavior.
 
-### KPI Cards
-
-- Total Sales
-- Total Orders
-- Total Profit
-- Profit Margin %
-- Average Order Value
-- Total Customers
-
 ### Visuals
 
 - **Monthly Profit Trend** — Area Chart
@@ -362,21 +224,6 @@ Focuses specifically on profitability and discount behavior.
 - **Profit by Discount Band** — Funnel Chart
 - **Profit Margin vs Target** — Gauge
 
-## Dashboard Design
-
-The report follows a consistent professional style:
-
-- Dark background
-- High-contrast typography
-- Rounded visual containers
-- Consistent spacing
-- Clear page titles
-- KPI cards at the top of analytical pages
-- Interactive Power BI visuals
-- Home-page navigation
-- Minimal unnecessary visual repetition
-
-The design prioritizes **clarity, usability and business interpretation**.
 
 ## Key Business Analysis Enabled
 
@@ -415,30 +262,6 @@ Analyze discount contribution and examine relationships between discounts, sales
 - Created a management-focused Executive Overview.
 - Added dedicated profitability and discount analysis.
 
-## Suggested Repository Structure
-
-```text
-Enterprise-Business-Intelligence-Analytics-Platform/
-│
-├── README.md
-│
-├── Data/
-│   └── Ecommerce_Sales_Data_2024_2025.csv
-│
-├── PowerBI/
-│   └── Enterprise_BI_Analytics_Platform.pbix
-│
-├── DAX/
-│   └── Final_Enterprise_BI_DAX_Measures.txt
-│
-└── Screenshots/
-    ├── Home.png
-    ├── Executive_Overview.png
-    ├── Sales_Analytics.png
-    ├── Product_Category.png
-    ├── Customer_Geography.png
-    └── Profitability_Discount.png
-```
 
 ## How to Use
 
@@ -469,15 +292,3 @@ The project demonstrates practical skills in:
 - Dashboard Design
 - Business Reporting
 
-## Author
-
-**Harshit Dutta**
-
-Enterprise Business Intelligence & Analytics Platform  
-Built using **Power BI, Power Query and DAX**.
-
-## Project Status
-
-**Completed ✅**
-
-The complete BI workflow — from raw e-commerce data to the final interactive Power BI analytics platform — has been implemented.
